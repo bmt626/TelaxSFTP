@@ -1,4 +1,5 @@
 import os, pysftp, time, logging
+from pyemail import sendEmail
 
 telaxServer = FTPSERVER
 telaxUser = USERNAME
@@ -48,5 +49,11 @@ try:
                 logging.info(file + ' - has been completed...')
     sftp.close()
     logging.info('SFTP connection closed - Downloads Completed at ' + time.strftime("%Y/%m/%d %H:%M:%S"))
+
+    #send email with the log file
+    sendEmail(logDir + curTimeDate + '.txt')
+
 except Exception, e:
     logging.error(str(e))
+    #send email with the log file
+    sendEmail(logDir + curTimeDate + '.txt')
