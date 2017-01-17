@@ -51,9 +51,9 @@ try:
     logging.info('SFTP connection closed - Downloads Completed at ' + time.strftime("%Y/%m/%d %H:%M:%S"))
 
     #send email with the log file
-    sendEmail(logDir + curTimeDate + '.txt')
+    sendEmail(logDir + curTimeDate + '.txt', 'Success')
 
 except Exception, e:
     logging.error(str(e))
     #send email with the log file
-    sendEmail(logDir + curTimeDate + '.txt')
+    sendEmail(logDir + curTimeDate + '.txt', 'Error')

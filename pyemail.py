@@ -2,7 +2,7 @@ import smtplib
 
 from email.mime.text import MIMEText
 
-def sendEmail(logfile):
+def sendEmail(logfile, statuscode):
     FROM = FROM_USER_EMAIL
     TO = TO_USER_EMAIL
 
@@ -10,7 +10,7 @@ def sendEmail(logfile):
     msg = MIMEText(fp.read())
     fp.close()
 
-    msg['Subject'] = 'EMAIL_SUBJECT_HERE'
+    msg['Subject'] = statuscode + ': ' + 'EMAIL_SUBJECT_HERE'
     msg['From'] = FROM
     msg['To'] = TO
 
