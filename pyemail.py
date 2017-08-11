@@ -22,9 +22,8 @@ def createmsg(logfile):
     with open(logfile, 'rb') as fp:
         msg = ''
         for line in fp:
-            msg += line
+            msg += str(line, "utf-8")
             # add a new line to the text doc as some mail clients will
             # ignore the line breaks with out this (ie - outlook)
             msg += '\n-'
-    fp.close()
     return msg

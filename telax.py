@@ -31,7 +31,7 @@ def connect_to_telaxftp(ftperrors):
         sftp = pysftp.Connection(TELAXSERVER, username=TELAXUSER,
                                  password=TELAXPWD, cnopts=cnopts)
         return sftp
-    except Exception, e:
+    except Exception as e:
         # log the failure add to error count and relaunch the download
         ftperrors += 1
         logging.error(str(e))
@@ -44,7 +44,7 @@ def sftpdownload(ftperrors):
     if ftperrors >= FTP_ERRORS_LIMIT:
         print('Error limit reached aborting!')
         logging.error('Error limit reached aborting!')
-        sendemail(LOGDIR + CURTIMEDATE + '.txt', 'Error')
+        sendEmail(LOGDIR + CURTIMEDATE + '.txt', 'Error')
         exit()
     # call the connect function and store the result to call on
     sftp = connect_to_telaxftp(ftperrors)
@@ -63,19 +63,19 @@ def sftpdownload(ftperrors):
                     # check if local size and remote match and skip
                     # the download and log the event if they do
                     if lfsize == rfsize:
-                        print(file + ' already exist'
-                              + ' and matches remote file size')
-                        logging.info(file + ' already exist'
-                                     + ' and matches remote file size')
+                        print(file + ' already exist' +
+                                     ' and matches remote file size')
+                        logging.info(file + ' already exist' +
+                                            ' and matches remote file size')
                     # if local and remote sizes don't match delete local file
                     # and attempt to download the file again
                     if lfsize != rfsize:
-                        print(file + ' has a size mismatch - '
-                              + 'local size is ' + str(lfsize)
-                              + ' and remote size is ' + str(rfsize))
-                        logging.info(file + ' has a size mismatch - '
-                                     + 'local size is ' + str(lfsize)
-                                     + ' and remote size is ' + str(rfsize))
+                        print(file + ' has a size mismatch - ' +
+                                     'local size is ' + str(lfsize) +
+                                     ' and remote size is ' + str(rfsize))
+                        logging.info(file + ' has a size mismatch - ' +
+                                            'local size is ' + str(lfsize) +
+                                            ' and remote size is ' + str(rfsize))
                         print('Removing corrupt file named ' + file)
                         logging.info('Removing corrupt file named ' + file)
                         os.remove(LOCALDIR + file)
@@ -95,12 +95,12 @@ def sftpdownload(ftperrors):
         logging.info('All downloads have been completed')
         # close the connection to the server
         sftp.close()
-        logging.info('SFTP connection closed - Downloads Completed at '
-                     + time.strftime("%Y/%m/%d %H:%M:%S"))
+        logging.info('SFTP connection closed - Downloads Completed at ' +
+                     time.strftime("%Y/%m/%d %H:%M:%S"))
         # send email with the log file
-        sendemail(LOGDIR + CURTIMEDATE + '.txt', 'Success')
+        sendEmail(LOGDIR + CURTIMEDATE + '.txt', 'Success')
 
-    except Exception, e:
+    except Exception as e:
         logging.error(str(e))
         # update error count and reattempt the downloads
         ftperrors += 1
