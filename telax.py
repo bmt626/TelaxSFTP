@@ -10,6 +10,9 @@ TELAXSERVER = FTPSERVER
 TELAXUSER = USERNAME
 TELAXPWD = PASSWORD
 LOCALDIR = LOCALHOST_DIR
+CURRENTFILE = "" # init current file variable used for reseting error counts
+LASTERRORFILE = "none"
+
 # pysftp does not auto add known hosts I to sftp in from a server (linux)
 # then copy my known host to a new file specified here
 KH = PATHTOKNOWNHOSTSFILE
@@ -39,6 +42,9 @@ def connect_to_telaxftp(ftperrors):
 
 
 def sftpdownload(ftperrors):
+    if CURRENTFILE != LASTERRORFILE:
+        print("Last file to cause an error does not match current file..... Reseting Error Counter")
+        ftperrors = 0
     # check to make sure the error limit has not been reached
     # if it has abort and send the log as an email.
     if ftperrors >= FTP_ERRORS_LIMIT:
@@ -52,8 +58,10 @@ def sftpdownload(ftperrors):
     remotedir = sftp.listdir()
     try:
         for file in remotedir:
+            CURRENTFILE = file
             # Make sure the currently selected file is an actual file
             # and not a directory then proceed to downlaod if TRUE.
+            
             if sftp.isfile(file):
                 # check if file is already downloaded locally
                 if os.path.exists(LOCALDIR + file):
@@ -70,6 +78,7 @@ def sftpdownload(ftperrors):
                     # if local and remote sizes don't match delete local file
                     # and attempt to download the file again
                     if lfsize != rfsize:
+                        LASTERRORFILE = file # update last file to cause error var
                         print(file + ' has a size mismatch - ' +
                                      'local size is ' + str(lfsize) +
                                      ' and remote size is ' + str(rfsize))
