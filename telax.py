@@ -10,7 +10,7 @@ TELAXSERVER = FTPSERVER
 TELAXUSER = USERNAME
 TELAXPWD = PASSWORD
 LOCALDIR = LOCALHOST_DIR
-CURRENTFILE = "" # init current file variable used for reseting error counts
+CURRENTFILE = " " # init current file variable used for reseting error counts
 LASTERRORFILE = "none"
 
 # pysftp does not auto add known hosts I to sftp in from a server (linux)
@@ -41,8 +41,8 @@ def connect_to_telaxftp(ftperrors):
         sftpdownload(ftperrors)
 
 
-def sftpdownload(ftperrors):
-    if CURRENTFILE != LASTERRORFILE:
+def sftpdownload(ftperrors, CURRENTFILE, LASTERRORFILE):
+    if CURRENTFILE != LASTERRORFILE and ftperrors > 0:
         print("Last file to cause an error does not match current file..... Reseting Error Counter")
         ftperrors = 0
     # check to make sure the error limit has not been reached
@@ -113,11 +113,11 @@ def sftpdownload(ftperrors):
         logging.error(str(e))
         # update error count and reattempt the downloads
         ftperrors += 1
-        sftpdownload(ftperrors)
+        sftpdownload(ftperrors,CURRENTFILE, LASTERRORFILE)
 
 
 def main():
-    sftpdownload(ftperrors)
+    sftpdownload(ftperrors, CURRENTFILE, LASTERRORFILE)
 
 
 if __name__ == '__main__':
