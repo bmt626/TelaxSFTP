@@ -43,7 +43,8 @@ def connect_to_telaxftp(ftperrors):
 
 def sftpdownload(ftperrors, CURRENTFILE, LASTERRORFILE):
     if CURRENTFILE != LASTERRORFILE and ftperrors > 0:
-        print("Last file to cause an error does not match current file..... Reseting Error Counter")
+        print("Last file to cause an error does not match current file..... Resetting Error Counter")
+        logging.info("The last file to cause an error does not match current file.... resetting error counter")
         ftperrors = 0
     # check to make sure the error limit has not been reached
     # if it has abort and send the log as an email.
