@@ -51,7 +51,7 @@ def sftpdownload(ftperrors, CURRENTFILE, LASTERRORFILE):
     if ftperrors >= FTP_ERRORS_LIMIT:
         print('Error limit reached aborting!')
         logging.error('Error limit reached aborting!')
-        sendEmail(LOGDIR + CURTIMEDATE + '.txt', 'Error')
+        sendemail(LOGDIR + CURTIMEDATE + '.txt', 'Error')
         exit()
     # call the connect function and store the result to call on
     sftp = connect_to_telaxftp(ftperrors)
@@ -108,7 +108,7 @@ def sftpdownload(ftperrors, CURRENTFILE, LASTERRORFILE):
         logging.info('SFTP connection closed - Downloads Completed at ' +
                      time.strftime("%Y/%m/%d %H:%M:%S"))
         # send email with the log file
-        sendEmail(LOGDIR + CURTIMEDATE + '.txt', 'Success')
+        sendemail(LOGDIR + CURTIMEDATE + '.txt', 'Success')
 
     except Exception as e:
         logging.error(str(e))
