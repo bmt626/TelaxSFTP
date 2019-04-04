@@ -6,19 +6,18 @@ import pysftp
 
 from pyemail import sendemail
 
-TELAXSERVER = FTPSERVER
-TELAXUSER = USERNAME
-TELAXPWD = PASSWORD
-LOCALDIR = LOCALHOST_DIR
-CURRENTFILE = " " # init current file variable used for reseting error counts
-LASTERRORFILE = "none"
-
+TELAXSERVER = "FTPSERVER"
+TELAXUSER = "USERNAME"
+TELAXPWD = "PASSWORD"
+LOCALDIR = "LOCALHOST_DIR"
 # pysftp does not auto add known hosts I to sftp in from a server (linux)
 # then copy my known host to a new file specified here
-KH = PATHTOKNOWNHOSTSFILE
-LOGDIR = DIR_TO_STORE_LOGS
+KH = "PATHTOKNOWNHOSTSFILE"
+LOGDIR = "DIR_TO_STORE_LOGS"
 CURTIMEDATE = time.strftime("%Y-%m-%d_%H.%M.%S")  # used to generate logname
 FTP_ERRORS_LIMIT = 3
+currentfile = " " # init current file variable used for reseting error counts
+lasterrorfile = "none"
 ftperrors = 0
 
 # setup logging - save log to the specifed log dir with the name of the
@@ -26,7 +25,8 @@ ftperrors = 0
 logging.basicConfig(filename=LOGDIR + CURTIMEDATE + '.txt', level=logging.INFO)
 
 
-def connect_to_telaxftp(ftperrors):
+def connect_to_telaxftp():
+    global ftperrors
     # setup stfp connection
     try:
         cnopts = pysftp.CnOpts(knownhosts=KH)
@@ -38,11 +38,12 @@ def connect_to_telaxftp(ftperrors):
         # log the failure add to error count and relaunch the download
         ftperrors += 1
         logging.error(str(e))
-        sftpdownload(ftperrors)
+        sftpdownload()
 
 
-def sftpdownload(ftperrors, CURRENTFILE, LASTERRORFILE):
-    if CURRENTFILE != LASTERRORFILE and ftperrors > 0:
+def sftpdownload():
+    global ftperrors, currentfile, lasterrorfile 
+    if currentfile != lasterrorfile and ftperrors > 0:
         print("Last file to cause an error does not match current file..... Resetting Error Counter")
         logging.info("The last file to cause an error does not match current file.... resetting error counter")
         ftperrors = 0
@@ -54,12 +55,12 @@ def sftpdownload(ftperrors, CURRENTFILE, LASTERRORFILE):
         sendemail(LOGDIR + CURTIMEDATE + '.txt', 'Error')
         exit()
     # call the connect function and store the result to call on
-    sftp = connect_to_telaxftp(ftperrors)
+    sftp = connect_to_telaxftp()
     # save the list of files and directorys so you can work with them
     remotedir = sftp.listdir()
     try:
         for file in remotedir:
-            CURRENTFILE = file
+            currentfile = file
             # Make sure the currently selected file is an actual file
             # and not a directory then proceed to downlaod if TRUE.
             
@@ -79,7 +80,7 @@ def sftpdownload(ftperrors, CURRENTFILE, LASTERRORFILE):
                     # if local and remote sizes don't match delete local file
                     # and attempt to download the file again
                     if lfsize != rfsize:
-                        LASTERRORFILE = file # update last file to cause error var
+                        lasterrorfile = file # update last file to cause error var
                         print(file + ' has a size mismatch - ' +
                                      'local size is ' + str(lfsize) +
                                      ' and remote size is ' + str(rfsize))
@@ -111,14 +112,16 @@ def sftpdownload(ftperrors, CURRENTFILE, LASTERRORFILE):
         sendemail(LOGDIR + CURTIMEDATE + '.txt', 'Success')
 
     except Exception as e:
+        # update error file with the file name that just failed
+        lasterrorfile = currentfile
         logging.error(str(e))
         # update error count and reattempt the downloads
         ftperrors += 1
-        sftpdownload(ftperrors,CURRENTFILE, LASTERRORFILE)
+        sftpdownload()
 
 
 def main():
-    sftpdownload(ftperrors, CURRENTFILE, LASTERRORFILE)
+    sftpdownload()
 
 
 if __name__ == '__main__':
