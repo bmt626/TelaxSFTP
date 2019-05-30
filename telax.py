@@ -39,10 +39,9 @@ def sftpdownload():
         remotedir = sftp.listdir()
         try:
             for file in remotedir:
-                currentfile = file
+                
                 # Make sure the currently selected file is an actual file
                 # and not a directory then proceed to downlaod if TRUE.
-            
                 if sftp.isfile(file):
                     # check if file is already downloaded locally
                     if os.path.exists(LOCALDIR + file):
@@ -59,7 +58,6 @@ def sftpdownload():
                         # if local and remote sizes don't match delete local file
                         # and attempt to download the file again
                         if lfsize != rfsize:
-                            lasterrorfile = file # update last file to cause error var
                             print(file + ' has a size mismatch - ' +
                                      'local size is ' + str(lfsize) +
                                      ' and remote size is ' + str(rfsize))
@@ -92,8 +90,6 @@ def sftpdownload():
             sendemail(LOGDIR + CURTIMEDATE + '.txt', 'Success')
 
         except Exception as e:
-            # update error file with the file name that just failed
-            lasterrorfile = currentfile
             logging.error(str(e))
             # reattempt the downloads
             sftpdownload()
